@@ -3,6 +3,9 @@
 Monolit modular Django. Toate cărțile publicate pot fi citite online de orice
 utilizator autentificat. Nu există împrumut, stoc, rezervare sau abonament.
 
+<img width="940" height="648" alt="image" src="https://github.com/user-attachments/assets/fc819c9f-62f3-479f-8d75-4c1ce19b8756" />
+
+
 ## Rulare
 
 ```bash
