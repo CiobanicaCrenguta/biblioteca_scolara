@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Profil · Biblioteca școlară{% endblock %}
+{% block content %}
+
+<div class="section-head">
+  <div>
+    <h1 style="margin-bottom:.1rem">Profilul tău</h1>
+    <p class="muted">{{ user.username }} · {{ user.get_role_display }}</p>
+  </div>
+  <span class="tag tag-butter">{{ stats.level }}</span>
+</div>
+
+<div class="panel">
+  <h3>Cititorul din tine</h3>
+  {% if stats.has_data %}
+    <div class="stat-row">
+      <div class="stat"><b>{{ stats.finished }}</b><span>terminate</span></div>
+      <div class="stat"><b>{{ stats.reading }}</b><span>în curs</span></div>
+      <div class="stat"><b>{{ stats.want_to_read }}</b><span>de citit</span></div>
+      <div class="stat"><b>{{ stats.liked }}</b><span>apreciate</span></div>
+      <div class="stat"><b>{{ stats.average_progress }}%</b><span>progres mediu</span></div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><b>{{ stats.completion_rate }}%</b><span>rată de finalizare</span></div>
+      <div class="stat"><b>{{ stats.total_sessions }}</b><span>sesiuni de lectură</span></div>
+      <div class="stat"><b>{{ stats.reading_hours }}</b><span>ore estimate</span></div>
+      <div class="stat"><b>{{ stats.reading_streak }}</b><span>zile la rând</span></div>
+      <div class="stat"><b>{{ stats.unique_subjects_count }}</b><span>teme explorate</span></div>
+      <div class="stat"><b>{{ stats.engagement_score }}</b><span>scor de implicare</span></div>
+    </div>
+
+    {% if stats.books_by_reaction.liked or stats.books_by_reaction.disliked or stats.books_by_reaction.neutral %}
+      <p class="muted" style="margin-top:1rem">Cum ți-au plăcut cărțile</p>
+      <div class="tag-row">
+        {% if stats.books_by_reaction.liked %}<span class="tag tag-berry">{{ stats.books_by_reaction.liked }} mi-au plăcut</span>{% endif %}
+        {% if stats.books_by_reaction.neutral %}<span class="tag">{{ stats.books_by_reaction.neutral }} neutre</span>{% endif %}
+        {% if stats.books_by_reaction.disliked %}<span class="tag tag-mint">{{ stats.books_by_reaction.disliked }} nu mi-au plăcut</span>{% endif %}
+      </div>
+    {% endif %}
+
+    {% if stats.continue_reading %}
+      <div class="resume">
+        <div>
+          <span class="muted">Ai rămas la pagina {{ stats.continue_reading.location }}</span>
+          <div><strong>{{ stats.continue_reading.book.title }}</strong></div>
+          <div class="progress-track" style="margin-top:.4rem; max-width:220px">
+            <span style="width: {{ stats.continue_reading.percentage }}%"></span>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="{% url 'reader:read' stats.continue_reading.book.slug %}">Continuă</a>
+      </div>
+    {% endif %}
+
+    {% if stats.top_subjects %}
+      <p class="muted" style="margin-top:1rem">Temele tale</p>
+      <div class="tag-row">
+        {% for name, count in stats.top_subjects %}
+          <span class="tag">{{ name }} · {{ count }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if stats.top_authors %}
+      <p class="muted" style="margin-top:.8rem">Autorii pe care îi citești</p>
+      <div class="tag-row">
+        {% for name, count in stats.top_authors %}
+          <span class="tag tag-berry">{{ name }} · {{ count }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <p class="muted" style="margin-top:1.2rem">Cărți terminate, ultimele 6 luni</p>
+    <div class="sparkline">
+      {% for bucket in stats.activity %}
+        <div class="spark" title="{{ bucket.count }}">
+          <span style="height: {% if bucket.count %}{{ bucket.height }}{% else %}3{% endif %}%"></span>
+          <em>{{ bucket.label }}</em>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if stats.recent_finished %}
+      <p class="muted" style="margin-top:1rem">Ultimele terminate</p>
+      <div class="tag-row">
+        {% for book in stats.recent_finished %}
+          <a class="chip" href="{% url 'catalog:book_detail' book.slug %}">{{ book.title }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    <p class="muted">Încă nu ai nimic în raft. Statisticile apar de la prima carte salvată.</p>
+    <p><a class="btn btn-soft btn-sm" href="{% url 'catalog:book_list' %}">Deschide catalogul</a></p>
+  {% endif %}
+</div>
+
+{% if stats.reading_books %}
+  <div class="panel">
+    <h3>Citești acum</h3>
+    {% for entry in stats.reading_books %}
+      <div class="list-row">
+        <div style="flex:1">
+          <a href="{% url 'catalog:book_detail' entry.book.slug %}"><strong>{{ entry.book.title }}</strong></a>
+          <div class="muted">{{ entry.book.author_names }}</div>
+          <div class="progress-track" style="max-width:220px;margin-top:.4rem">
+            <span style="width: {{ entry.percentage }}%"></span>
+          </div>
+        </div>
+        <span class="tag tag-mint">{{ entry.percentage }}%</span>
+        <a class="btn btn-sm btn-soft" href="{% url 'reader:read' entry.book.slug %}">Continuă</a>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if stats.finished_books %}
+  <div class="panel">
+    <h3>Cărți citite <span class="muted">({{ stats.finished_books|length }})</span></h3>
+    {% for entry in stats.finished_books %}
+      <div class="list-row">
+        <div style="flex:1">
+          <a href="{% url 'catalog:book_detail' entry.book.slug %}">{{ entry.book.title }}</a>
+          {% if entry.finished_at %}<span class="muted"> · {{ entry.finished_at|date:"d M Y" }}</span>{% endif %}
+        </div>
+        <span class="tag tag-butter">100%</span>
+        {% if entry.reaction == "LIKE" %}<span class="tag tag-berry">mi-a plăcut</span>
+        {% elif entry.reaction == "DISLIKE" %}<span class="tag">nu mi-a plăcut</span>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="panel">
+    <h3>Ce îți place să citești</h3>
+    <p class="muted">Bifează câteva teme. De aici pornesc recomandările înainte să ai istoric de lectură.</p>
+    {{ form.preferred_subjects.errors }}
+    <div class="subject-picker">{{ form.preferred_subjects }}</div>
+  </div>
+
+  <div class="panel">
+    <h3>Despre tine</h3>
+    <p>{{ form.age_group.label_tag }}<br>{{ form.age_group }}</p>
+    <p class="muted">Vârsta nu blochează accesul la nicio carte. Influențează doar ordinea recomandărilor.</p>
+    <p>{{ form.preferred_language.label_tag }}<br>{{ form.preferred_language }}</p>
+  </div>
+
+  <div class="panel">
+    <h3>Recomandări personalizate</h3>
+    <p><label>{{ form.personalization_enabled }} {{ form.personalization_enabled.label }}</label></p>
+    <p class="muted">Dacă oprești personalizarea, progresul lecturii se salvează în continuare,
+       dar istoricul nu mai este folosit pentru recomandări.</p>
+  </div>
+
+  <button class="btn" type="submit">Salvează profilul</button>
+</form>
+
+<div class="panel" style="margin-top:1.4rem">
+  <h3>Datele tale</h3>
+  <p class="muted">Poți vedea, descărca sau șterge oricând ce păstrează aplicația despre tine.</p>
+  <div class="shelf-form">
+    <a class="btn btn-soft btn-sm" href="{% url 'accounts:privacy' %}">Ce date se păstrează</a>
+    <a class="btn btn-soft btn-sm" href="{% url 'accounts:export_data' %}">Descarcă datele mele</a>
+    <a class="btn btn-ghost btn-sm" href="{% url 'accounts:clear_history' %}">Șterge istoricul</a>
+    <a class="btn btn-ghost btn-sm" href="{% url 'accounts:delete_account' %}">Șterge contul</a>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% load static %}<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Biblioteca școlară{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Bibliotecă digitală școlară. Cărți care se citesc online, gratuit, de elevi și profesori.{% endblock %}">
+  <meta name="theme-color" content="#FFA07C">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="{% url 'catalog:book_list' %}">
+      <span class="brand-mark">✿</span> Biblioteca școlară
+    </a>
+    <nav class="nav">
+      <a href="{% url 'catalog:book_list' %}" {% if request.resolver_match.url_name == 'book_list' %}class="active"{% endif %}>Catalog</a>
+      <a href="{% url 'recommendations:for_you' %}" {% if request.resolver_match.url_name == 'for_you' %}class="active"{% endif %}>Pentru tine</a>
+      <a href="{% url 'reading_lists:index' %}" {% if request.resolver_match.app_name == 'reading_lists' %}class="active"{% endif %}>Liste</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'reader:my_library' %}" {% if 'my_library' in request.resolver_match.url_name %}class="active"{% endif %}>Raftul meu</a>
+        <a href="{% url 'accounts:profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>Profil</a>
+        {% if user.is_librarian %}
+          <a href="{% url 'catalog:atelier' %}" {% if sectiune == 'carti' %}class="active"{% endif %}>Cărți</a>
+          <a href="{% url 'accounts:utilizatori' %}" {% if sectiune == 'utilizatori' %}class="active"{% endif %}>Utilizatori</a>
+        {% endif %}
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}<button type="submit" title="{{ user.get_role_display }}">Ieși</button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}">Intră</a>
+        <a class="btn btn-sm" href="{% url 'accounts:register' %}">Cont nou</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<main class="shell">
+  {% if messages %}
+    <div class="messages" role="status" aria-live="polite">
+      {% for message in messages %}
+        <p class="msg {% if message.tags == 'error' %}error{% endif %}">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>Biblioteca digitală școlară</span>
+    <span>Toate cărțile publicate se citesc online, gratuit</span>
+    {% if user.is_authenticated %}
+      <a href="{% url 'accounts:privacy' %}">Confidențialitate</a>
+    {% endif %}
+  </div>
+</footer>
+</body>
+</html>

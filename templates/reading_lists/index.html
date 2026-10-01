@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Liste de lectură{% endblock %}
+{% block content %}
+
+<div class="section-head">
+  <div>
+    <h1 style="margin-bottom:.1rem">Liste de lectură</h1>
+    <p class="muted">Selecții tematice alcătuite de profesori.</p>
+  </div>
+  {% if user.is_authenticated and user.can_curate %}
+    <a class="btn btn-sm" href="{% url 'reading_lists:create' %}">Listă nouă</a>
+  {% endif %}
+</div>
+
+<div class="grid">
+  {% for l in lists %}
+    <article class="card">
+      <div class="card-body">
+        <a class="card-title" href="{% url 'reading_lists:detail' l.slug %}">{{ l.title }}</a>
+        <span class="muted">{{ l.owner.username }} · {{ l.items.count }} titlu{{ l.items.count|pluralize:"ri" }}</span>
+        {% if l.target_age_group %}<div class="tag-row"><span class="tag tag-mint">{{ l.get_target_age_group_display }}</span></div>{% endif %}
+        {% if l.description %}<p class="muted">{{ l.description|truncatewords:18 }}</p>{% endif %}
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty" style="grid-column: 1 / -1">
+      <h3>Nicio listă publicată încă</h3>
+      <p class="muted">Profesorii pot crea selecții tematice din catalog.</p>
+    </div>
+  {% endfor %}
+</div>
+
+{% if mine %}
+  <div class="section-head"><h2>Listele mele</h2></div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Titlu</th><th>Stare</th><th>Titluri</th><th></th></tr></thead>
+      <tbody>
+      {% for l in mine %}
+        <tr>
+          <td><a href="{% url 'reading_lists:detail' l.slug %}">{{ l.title }}</a>
+            {% if l.owner != user %}<span class="muted"> · {{ l.owner.username }}</span>{% endif %}</td>
+          <td><span class="tag">{{ l.get_status_display }}</span></td>
+          <td>{{ l.items.count }}</td>
+          <td><a class="btn btn-ghost btn-sm" href="{% url 'reading_lists:edit' l.slug %}">Editează</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+
+{% endblock %}

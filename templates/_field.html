@@ -1,0 +1,7 @@
+{% comment %}Un câmp de formular cu etichetă, erori și text de ajutor.{% endcomment %}
+<p class="field{% if field.errors %} field-error{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {{ field }}
+  {% for error in field.errors %}<span class="field-msg">{{ error }}</span>{% endfor %}
+  {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+</p>

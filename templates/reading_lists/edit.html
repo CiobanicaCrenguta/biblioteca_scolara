@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Editează {{ list.title }}{% endblock %}
+{% block content %}
+
+<div class="section-head">
+  <div>
+    <h1 style="margin-bottom:.1rem">{{ list.title }}</h1>
+    <p class="muted">{{ list.get_status_display }} · {{ list.items.count }} titlu{{ list.items.count|pluralize:"ri" }}</p>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{% url 'reading_lists:detail' list.slug %}">Vezi lista</a>
+</div>
+
+<div class="panel">
+  <h3>Titlurile din listă</h3>
+  {% for item in list.items.all %}
+    <div class="list-row">
+      <span class="pos">{{ item.position }}</span>
+      <div style="flex:1">
+        <a href="{% url 'catalog:book_detail' item.book.slug %}">{{ item.book.title }}</a>
+        {% if item.teacher_note %}<div class="muted">{{ item.teacher_note }}</div>{% endif %}
+      </div>
+      <form method="post" action="{% url 'reading_lists:move' list.slug %}">
+        {% csrf_token %}<input type="hidden" name="item" value="{{ item.id }}">
+        <button class="btn btn-ghost btn-sm" name="direction" value="up">↑</button>
+        <button class="btn btn-ghost btn-sm" name="direction" value="down">↓</button>
+      </form>
+      <form method="post" action="{% url 'reading_lists:remove_item' list.slug %}">
+        {% csrf_token %}<input type="hidden" name="book" value="{{ item.book.id }}">
+        <button class="btn btn-ghost btn-sm" type="submit">Scoate</button>
+      </form>
+    </div>
+  {% empty %}
+    <p class="muted">Nicio carte încă.</p>
+  {% endfor %}
+</div>
+
+<div class="panel">
+  <h3>Adaugă din catalog</h3>
+  <p class="muted">Apar doar cărțile publicate: elevii trebuie să le poată deschide.</p>
+  <form class="shelf-form" method="post" action="{% url 'reading_lists:add_item' list.slug %}">
+    {% csrf_token %}
+    <select name="book" style="flex:1 1 240px">
+      {% for book in candidates %}<option value="{{ book.id }}">{{ book.title }}</option>{% endfor %}
+    </select>
+    <input type="text" name="note" placeholder="Notă pentru elevi (opțional)" style="flex:1 1 200px">
+    <button class="btn btn-sm" type="submit">Adaugă</button>
+  </form>
+</div>
+
+<div class="panel">
+  <h3>Detalii</h3>
+  <form method="post">{% csrf_token %}{{ form.as_p }}
+    <button class="btn btn-soft btn-sm" type="submit">Salvează detaliile</button>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="shelf-form">
+    {% if not list.is_published %}
+      <form method="post" action="{% url 'reading_lists:publish' list.slug %}">
+        {% csrf_token %}<button class="btn btn-sm" type="submit">Publică lista</button>
+      </form>
+    {% endif %}
+    <form method="post" action="{% url 'reading_lists:archive' list.slug %}">
+      {% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">Arhivează</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

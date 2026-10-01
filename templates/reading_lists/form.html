@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Listă nouă{% endblock %}
+{% block content %}
+<div class="panel form-card">
+  <h1>Listă nouă</h1>
+  <p class="muted">O listă devine vizibilă abia după ce o publici.</p>
+  <form method="post">{% csrf_token %}{{ form.as_p }}
+    <button class="btn" type="submit" style="width:100%">Creează</button>
+  </form>
+</div>
+{% endblock %}

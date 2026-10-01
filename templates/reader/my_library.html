@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Raftul meu · Biblioteca școlară{% endblock %}
+{% block content %}
+
+<h1>Raftul meu</h1>
+
+<div class="chips">
+  <a class="chip {% if not shelf %}active{% endif %}" href="{% url 'reader:my_library' %}">Tot</a>
+  {% for value, label in statuses %}
+    <a class="chip {% if shelf == value %}active{% endif %}"
+       href="{% url 'reader:my_library_shelf' value|lower %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="grid">
+  {% for state in states %}
+    {% include "_card.html" with book=state.book reason=state.get_status_display percent=0 %}
+  {% endfor %}
+</div>
+
+{% if not states %}
+  <div class="empty">
+    <h3>Raft gol deocamdată</h3>
+    <p class="muted">Salvează o carte din catalog și o găsești aici.</p>
+    <p><a class="btn" href="{% url 'catalog:book_list' %}">Vezi catalogul</a></p>
+  </div>
+{% endif %}
+{% endblock %}

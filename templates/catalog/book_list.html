@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <h1>Toate cărțile, deschise pentru toți</h1>
+  <p>Fiecare titlu publicat aici poate fi citit online, de la prima până la ultima pagină.
+     Fără împrumut, fără listă de așteptare, fără termen de returnare.</p>
+</section>
+
+<form class="searchbar" method="get">
+  <input type="search" name="q" value="{{ query }}" placeholder="Caută după titlu, autor sau temă…">
+  <select name="subject">
+    <option value="">Toate temele</option>
+    {% for s in subjects %}
+      <option value="{{ s.slug }}" {% if s.slug == subject %}selected{% endif %}>{{ s.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn" type="submit">Caută</button>
+  {% if query or subject %}<a class="btn btn-ghost" href="{% url 'catalog:book_list' %}">Renunță</a>{% endif %}
+</form>
+
+{% if query or subject %}
+  <p class="muted">{{ books|length }} rezultat{{ books|length|pluralize:"e" }}</p>
+{% endif %}
+
+<div class="grid">
+  {% for book in books %}{% include "_card.html" %}{% endfor %}
+</div>
+
+{% if not books %}
+  <div class="empty">
+    <h3>Niciun titlu aici</h3>
+    <p class="muted">Încearcă altă căutare sau revino după ce bibliotecarul publică noi cărți.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

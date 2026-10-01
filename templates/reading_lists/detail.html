@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ list.title }}{% endblock %}
+{% block content %}
+
+<div class="section-head">
+  <div>
+    <h1 style="margin-bottom:.1rem">{{ list.title }}</h1>
+    <p class="muted">
+      Propusă de {{ list.owner.username }}
+      {% if list.target_age_group %} · {{ list.get_target_age_group_display }}{% endif %}
+      {% if not list.is_published %} · <strong>{{ list.get_status_display }}</strong>{% endif %}
+    </p>
+  </div>
+  {% if can_edit %}<a class="btn btn-ghost btn-sm" href="{% url 'reading_lists:edit' list.slug %}">Editează</a>{% endif %}
+</div>
+
+{% if list.description %}<p>{{ list.description }}</p>{% endif %}
+
+<div class="grid" style="margin-top:1.2rem">
+  {% for item in list.items.all %}
+    {% include "_card.html" with book=item.book reason=item.teacher_note percent=0 %}
+  {% endfor %}
+</div>
+
+{% if not list.items.all %}
+  <div class="empty"><h3>Lista este goală</h3></div>
+{% endif %}
+
+{% if can_edit %}
+  <div class="panel" style="margin-top:1.4rem">
+    <div class="shelf-form">
+      {% if not list.is_published %}
+        <form method="post" action="{% url 'reading_lists:publish' list.slug %}">
+          {% csrf_token %}<button class="btn btn-sm" type="submit">Publică lista</button>
+        </form>
+      {% endif %}
+      <form method="post" action="{% url 'reading_lists:archive' list.slug %}">
+        {% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">Arhivează</button>
+      </form>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

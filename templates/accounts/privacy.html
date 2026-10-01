@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Confidențialitate{% endblock %}
+{% block content %}
+<h1>Ce date păstrăm</h1>
+<p class="muted">Informare versiunea {{ version }}{% if profile.privacy_acknowledged_at %} · confirmată de tine la {{ profile.privacy_acknowledged_at|date:"d.m.Y" }}{% endif %}</p>
+
+<div class="panel">
+  <table>
+    <thead><tr><th>Date</th><th>De ce</th><th>Cât timp</th></tr></thead>
+    <tbody>
+      <tr><td>Nume de utilizator și email</td><td>Autentificare</td><td>Până ștergi contul</td></tr>
+      <tr><td>Rolul în bibliotecă</td><td>Ce ai voie să administrezi</td><td>Până ștergi contul</td></tr>
+      <tr><td>Categoria de vârstă</td><td>Ordinea recomandărilor</td><td>Până o schimbi</td></tr>
+      <tr><td>Temele bifate</td><td>Recomandări la început de drum</td><td>Până le schimbi</td></tr>
+      <tr><td>Raftul și starea lecturii</td><td>Ca să îți regăsești cărțile</td><td>Până ștergi istoricul</td></tr>
+      <tr><td>Poziția în fișier</td><td>Ca să continui de unde ai rămas</td><td>Până ștergi istoricul</td></tr>
+      <tr><td>Evenimente de recomandare</td><td>Personalizare</td><td>Până oprești personalizarea</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="panel">
+  <h3>Ce nu facem</h3>
+  <ul>
+    <li>Nu înregistrăm cât timp stai pe pagină sau cât derulezi.</li>
+    <li>Nu păstrăm data nașterii, ci doar un interval de vârstă.</li>
+    <li>Profesorii nu văd raftul sau istoricul elevilor.</li>
+    <li>Nu trimitem datele către servicii externe.</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <h3>Drepturile tale</h3>
+  <div class="shelf-form">
+    <a class="btn btn-soft btn-sm" href="{% url 'accounts:export_data' %}">Descarcă tot ce avem</a>
+    <form method="post" action="{% url 'accounts:stop_profiling' %}">
+      {% csrf_token %}
+      <button class="btn btn-ghost btn-sm" type="submit">Oprește profilarea și șterge evenimentele</button>
+    </form>
+    <a class="btn btn-ghost btn-sm" href="{% url 'accounts:clear_history' %}">Șterge istoricul</a>
+    <a class="btn btn-ghost btn-sm" href="{% url 'accounts:delete_account' %}">Șterge contul</a>
+  </div>
+</div>
+{% endblock %}

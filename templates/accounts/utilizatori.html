@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Atelier · Utilizatori{% endblock %}
+{% block content %}
+{% include "_atelier_bara.html" %}
+
+<div class="atelier">
+
+  <aside class="atelier-lista">
+    <form method="get" class="atelier-cauta">
+      <input type="search" name="q" value="{{ cautare }}" placeholder="Caută un utilizator…">
+      {% if rol %}<input type="hidden" name="rol" value="{{ rol }}">{% endif %}
+      <button class="btn btn-sm" type="submit">Caută</button>
+    </form>
+
+    <div class="chips">
+      <a class="chip {% if not rol %}active{% endif %}" href="{% url 'accounts:utilizatori' %}">Toți</a>
+      <a class="chip {% if rol == 'STUDENT' %}active{% endif %}" href="?rol=STUDENT">Elevi {{ numaratoare.STUDENT }}</a>
+      <a class="chip {% if rol == 'TEACHER' %}active{% endif %}" href="?rol=TEACHER">Profesori {{ numaratoare.TEACHER }}</a>
+      <a class="chip {% if rol == 'LIBRARIAN' %}active{% endif %}" href="?rol=LIBRARIAN">Bibliotecari {{ numaratoare.LIBRARIAN }}</a>
+    </div>
+
+    <a class="btn" href="{% url 'accounts:utilizatori' %}" style="width:100%;text-align:center">Cont nou</a>
+
+    <div class="atelier-randuri">
+      {% for u in utilizatori %}
+        <a class="atelier-rand {% if tinta and u.pk == tinta.pk %}activ{% endif %}"
+           href="{% url 'accounts:utilizator' u.pk %}">
+          <span style="flex:1">
+            <strong>{{ u.username }}</strong>
+            <span class="muted">{{ u.get_full_name|default:u.email|default:"fără nume" }}</span>
+          </span>
+          {% if not u.is_active %}<span class="stare ton-neutru">inactiv</span>{% endif %}
+          <span class="rol rol-{{ u.role|lower }}">{{ u.get_role_display }}</span>
+        </a>
+      {% empty %}
+        <p class="muted center" style="padding:1.5rem">Niciun utilizator aici.</p>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <section class="atelier-formular">
+    <form method="post"
+          action="{% if tinta %}{% url 'accounts:utilizator_salveaza' tinta.pk %}{% else %}{% url 'accounts:utilizator_creeaza' %}{% endif %}">
+      {% csrf_token %}
+
+      <div class="panel">
+        <h3>{% if tinta %}Contul „{{ tinta.username }}”{% else %}Cont nou{% endif %}</h3>
+        {% if tinta == user %}
+          <p class="msg">Acesta este contul tău. Rolul și starea nu pot fi schimbate de aici.</p>
+        {% endif %}
+
+        {% if formular.non_field_errors %}
+          <div class="msg error">{% for e in formular.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>
+        {% endif %}
+
+        <div class="grup-campuri">
+          {% include "_field.html" with field=formular.username %}
+          {% include "_field.html" with field=formular.email %}
+          {% include "_field.html" with field=formular.first_name %}
+          {% include "_field.html" with field=formular.last_name %}
+        </div>
+        {% include "_field.html" with field=formular.role %}
+        {% include "_field.html" with field=formular.parola %}
+        <label class="bifa">{{ formular.is_active }} {{ formular.is_active.label }}</label>
+        <span class="field-help">{{ formular.is_active.help_text }}</span>
+      </div>
+
+      <div class="atelier-actiuni">
+        <button class="btn" type="submit">{% if tinta %}Salvează modificările{% else %}Creează contul{% endif %}</button>
+        {% if tinta %}<a class="btn btn-ghost" href="{% url 'accounts:utilizatori' %}">Renunță</a>{% endif %}
+      </div>
+    </form>
+
+    {% if tinta and tinta != user %}
+      <form method="post" action="{% url 'accounts:utilizator_sterge' tinta.pk %}"
+            onsubmit="return confirm('Ștergi definitiv contul „{{ tinta.username|escapejs }}”? Dispar raftul, progresul și listele lui.');"
+            style="margin-top:1rem">
+        {% csrf_token %}
+        <button class="btn btn-ghost btn-sm" type="submit">Șterge contul</button>
+        <span class="muted">Dezactivarea păstrează datele și oprește autentificarea.</span>
+      </form>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

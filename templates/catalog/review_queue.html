@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Cărți nepublicate</h1>
+<p class="muted">Ce lipsește fiecărui titlu înainte de a ajunge în catalog.</p>
+
+<div class="panel">
+  <table>
+    <thead><tr><th>Titlu</th><th>Stare</th><th>Ce mai trebuie</th></tr></thead>
+    <tbody>
+    {% for book, problems in rows %}
+      <tr>
+        <td><a href="{% url 'catalog:book_detail' book.slug %}">{{ book.title }}</a></td>
+        <td><span class="tag">{{ book.get_status_display }}</span></td>
+        <td>
+          {% if problems %}
+            <ul style="margin:0; padding-left:1.1rem">{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul>
+          {% else %}
+            <span class="tag tag-mint">Gata de publicare</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3" class="muted">Nimic în așteptare.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

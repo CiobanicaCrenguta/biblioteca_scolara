@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Atelier · Cărți{% endblock %}
+{% block content %}
+{% include "_atelier_bara.html" %}
+
+<div class="atelier">
+
+  <aside class="atelier-lista">
+    <form method="get" class="atelier-cauta">
+      <input type="search" name="q" value="{{ cautare }}" placeholder="Caută un titlu…">
+      {% if filtru %}<input type="hidden" name="stare" value="{{ filtru }}">{% endif %}
+      <button class="btn btn-sm" type="submit">Caută</button>
+    </form>
+
+    <div class="chips">
+      <a class="chip {% if not filtru %}active{% endif %}" href="{% url 'catalog:atelier' %}">Toate</a>
+      <a class="chip {% if filtru == 'vizibila' %}active{% endif %}" href="?stare=vizibila">Vizibile {{ numaratoare.vizibila }}</a>
+      <a class="chip chip-alarma {% if filtru == 'ascunsa' %}active{% endif %}" href="?stare=ascunsa">Ascunse {{ numaratoare.ascunsa }}</a>
+      <a class="chip {% if filtru == 'gata' %}active{% endif %}" href="?stare=gata">Gata {{ numaratoare.gata }}</a>
+      <a class="chip {% if filtru == 'incompleta' %}active{% endif %}" href="?stare=incompleta">Incomplete {{ numaratoare.incompleta }}</a>
+      <a class="chip {% if filtru == 'arhivata' %}active{% endif %}" href="?stare=arhivata">Arhivate {{ numaratoare.arhivata }}</a>
+    </div>
+
+    <a class="btn" href="{% url 'catalog:atelier' %}" style="width:100%;text-align:center">Carte nouă</a>
+
+    <div class="atelier-randuri">
+      {% for rand in randuri %}
+        <a class="atelier-rand {% if carte and rand.carte.pk == carte.pk %}activ{% endif %}"
+           href="{% url 'catalog:atelier_carte' rand.carte.slug %}">
+          <span class="bulina ton-{{ rand.stare.ton }}" title="{{ rand.stare.eticheta }}"></span>
+          <span style="flex:1">
+            <strong>{{ rand.carte.title }}</strong>
+            <span class="muted">{{ rand.carte.author_names|default:"fără autor" }}</span>
+          </span>
+          <span class="stare ton-{{ rand.stare.ton }}">{{ rand.stare.eticheta }}</span>
+        </a>
+      {% empty %}
+        <p class="muted center" style="padding:1.5rem">Niciun titlu aici.</p>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <section class="atelier-formular">
+    {% if situatie %}
+      <div class="panel panel-stare ton-{{ situatie.ton }}">
+        <div class="shelf-form" style="justify-content:space-between">
+          <div>
+            <strong>{{ situatie.eticheta }}</strong>
+            {% if situatie.cheie == "ascunsa" %}
+              <p class="muted" style="margin:.25rem 0 0">
+                Cartea are starea „publicată”, dar elevii nu o văd. Catalogul cere și o
+                resursă activă cu drepturile verificate.
+              </p>
+            {% endif %}
+            {% if situatie.probleme %}
+              <ul class="muted" style="margin:.4rem 0 0">
+                {% for p in situatie.probleme %}<li>{{ p }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+          <div class="shelf-form">
+            {% if not situatie.vizibila %}
+              <form method="post" action="{% url 'catalog:publish_book' carte.slug %}">
+                {% csrf_token %}<button class="btn btn-sm" type="submit">Publică</button>
+              </form>
+            {% endif %}
+            <form method="post" action="{% url 'catalog:archive_book' carte.slug %}">
+              {% csrf_token %}<button class="btn btn-sm btn-ghost" type="submit">Arhivează</button>
+            </form>
+            <a class="btn btn-sm btn-soft" href="{% url 'catalog:book_detail' carte.slug %}">Vezi fișa</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data"
+          action="{% if carte %}{% url 'catalog:atelier_salveaza' carte.slug %}{% else %}{% url 'catalog:atelier_creeaza' %}{% endif %}">
+      {% csrf_token %}
+
+      <div class="panel">
+        <h3>{% if carte %}Datele cărții{% else %}Carte nouă{% endif %}</h3>
+        {% include "_field.html" with field=formular.title %}
+        {% include "_field.html" with field=formular.autori %}
+        {% include "_field.html" with field=formular.subiecte %}
+        {% include "_field.html" with field=formular.description %}
+        <div class="grup-campuri">
+          {% include "_field.html" with field=formular.recommended_age %}
+          {% include "_field.html" with field=formular.original_language %}
+          {% include "_field.html" with field=formular.first_publish_year %}
+        </div>
+        <label class="bifa">{{ formular.featured }} {{ formular.featured.label }}</label>
+      </div>
+
+      <div class="panel">
+        <h3>Ediția</h3>
+        <div class="grup-campuri">
+          {% include "_field.html" with field=formular.editie_limba %}
+          {% include "_field.html" with field=formular.editie_editura %}
+          {% include "_field.html" with field=formular.editie_an %}
+          {% include "_field.html" with field=formular.editie_isbn %}
+        </div>
+        {% include "_field.html" with field=formular.editie_coperta %}
+      </div>
+
+      <div class="panel">
+        <h3>Textul</h3>
+        <div class="grup-campuri">
+          {% include "_field.html" with field=formular.resursa_format %}
+          {% include "_field.html" with field=formular.resursa_stocare %}
+          {% include "_field.html" with field=formular.resursa_pagini %}
+        </div>
+        <div data-stocare="LOCAL">{% include "_field.html" with field=formular.resursa_fisier %}</div>
+        <div data-stocare="EXTERNAL">{% include "_field.html" with field=formular.resursa_link %}</div>
+      </div>
+
+      <div class="panel">
+        <h3>Drepturi</h3>
+        <p class="muted">Fără confirmarea de mai jos, cartea nu poate fi publicată,
+           indiferent ce stare are.</p>
+        <div class="grup-campuri">
+          {% include "_field.html" with field=formular.licenta_nume %}
+          {% include "_field.html" with field=formular.licenta_url %}
+          {% include "_field.html" with field=formular.licenta_sursa %}
+        </div>
+        <label class="bifa">{{ formular.drepturi_verificate }} {{ formular.drepturi_verificate.label }}</label>
+        <span class="field-help">{{ formular.drepturi_verificate.help_text }}</span>
+      </div>
+
+      <div class="atelier-actiuni">
+        <button class="btn" type="submit">{% if carte %}Salvează modificările{% else %}Adaugă cartea{% endif %}</button>
+        {% if carte %}<a class="btn btn-ghost" href="{% url 'catalog:atelier' %}">Renunță</a>{% endif %}
+      </div>
+    </form>
+
+    {% if carte %}
+      <form method="post" action="{% url 'catalog:atelier_sterge' carte.slug %}"
+            onsubmit="return confirm('Ștergi definitiv „{{ carte.title|escapejs }}”? Se pierd și progresul elevilor, și locul din listele profesorilor.');"
+            style="margin-top:1rem">
+        {% csrf_token %}
+        <button class="btn btn-ghost btn-sm" type="submit">Șterge cartea</button>
+        <span class="muted">Arhivarea este aproape întotdeauna alegerea mai bună.</span>
+      </form>
+    {% endif %}
+  </section>
+</div>
+
+<script src="{% static 'js/atelier.js' %}"></script>
+{% endblock %}

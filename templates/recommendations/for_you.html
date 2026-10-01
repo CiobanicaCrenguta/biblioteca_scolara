@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Pentru tine · Biblioteca școlară{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <h1>Pentru tine</h1>
+  <p>{% if personalized %}Alese pornind de la ce ai citit, ce ai salvat și temele pe care le-ai bifat în profil.
+     Fiecare titlu vine cu motivul din spate.{% else %}Personalizarea este oprită în profilul tău,
+     așa că vezi selecția bibliotecarului și adăugările recente.{% endif %}</p>
+</section>
+
+<div class="grid">
+  {% for pick in picks %}
+    {% include "_card.html" with book=pick.book reason=pick.reason percent=pick.percent %}
+  {% endfor %}
+</div>
+
+{% if not picks %}
+  <div class="empty">
+    <h3>Încă nu avem ce să îți propunem</h3>
+    <p class="muted">Bifează câteva teme preferate în profil sau salvează o carte în raft.</p>
+    <p><a class="btn" href="{% url 'accounts:profile' %}">Alege temele</a></p>
+  </div>
+{% endif %}
+
+{% if personalized %}
+  <p class="muted center" style="margin-top:1.6rem">
+    Poți opri recomandările personalizate oricând din <a href="{% url 'accounts:profile' %}">profil</a>.
+  </p>
+{% endif %}
+{% endblock %}

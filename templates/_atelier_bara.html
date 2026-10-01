@@ -1,0 +1,11 @@
+{% comment %}Antetul comun al atelierului: cele două secțiuni.{% endcomment %}
+<div class="atelier-antet">
+  <div>
+    <h1>Atelierul bibliotecarului</h1>
+    <p class="muted">Tot ce ține de catalog și de conturi, într-un singur loc.</p>
+  </div>
+  <nav class="atelier-taburi">
+    <a href="{% url 'catalog:atelier' %}" class="{% if sectiune == 'carti' %}activ{% endif %}">Cărți</a>
+    <a href="{% url 'accounts:utilizatori' %}" class="{% if sectiune == 'utilizatori' %}activ{% endif %}">Utilizatori</a>
+  </nav>
+</div>

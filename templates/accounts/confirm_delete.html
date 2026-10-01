@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Șterge contul{% endblock %}
+{% block content %}
+<div class="panel form-card panel-warn">
+  <h1>Ștergi contul definitiv?</h1>
+  <p>Dispar contul, raftul, progresul, evenimentele și listele pe care le-ai creat.
+     Acțiunea nu poate fi anulată.</p>
+  <p class="muted">Scrie <strong>{{ user.username }}</strong> ca să confirmi.</p>
+  <form method="post">
+    {% csrf_token %}
+    <p><input type="text" name="confirm" placeholder="{{ user.username }}" autocomplete="off"></p>
+    <button class="btn" type="submit">Șterge contul</button>
+    <a class="btn btn-ghost" href="{% url 'accounts:profile' %}">Renunță</a>
+  </form>
+</div>
+{% endblock %}

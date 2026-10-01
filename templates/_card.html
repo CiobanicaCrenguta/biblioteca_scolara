@@ -1,0 +1,16 @@
+{% comment %}Cardul de carte, refolosit în catalog, raft și recomandări.{% endcomment %}
+<article class="card">
+  <a href="{% url 'catalog:book_detail' book.slug %}" class="cover cover-{{ book.cover_theme }}">
+    {% if book.cover_url %}<img src="{{ book.cover_url }}" alt="Coperta {{ book.title }}">{% else %}{{ book.title }}{% endif %}
+  </a>
+  <div class="card-body">
+    <a class="card-title" href="{% url 'catalog:book_detail' book.slug %}">{{ book.title }}</a>
+    <span class="muted">{{ book.author_names|default:"autor necunoscut" }}</span>
+    <div class="tag-row">
+      {% for subject in book.subjects.all|slice:":2" %}<span class="tag">{{ subject.name }}</span>{% endfor %}
+      {% if book.recommended_age %}<span class="tag tag-mint">{{ book.get_recommended_age_display }}</span>{% endif %}
+    </div>
+    {% if reason %}<p class="reason">{{ reason }}</p>{% endif %}
+    {% if percent %}<div class="score"><span style="width: {{ percent }}%"></span></div>{% endif %}
+  </div>
+</article>

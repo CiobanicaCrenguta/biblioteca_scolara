@@ -1,0 +1,96 @@
+/* Biblioteca școlară - tema "piersică" pentru interfața de administrare.
+   Rescrie variabilele Django admin ca panoul bibliotecarului să arate ca
+   făcând parte din aceeași aplicație. */
+
+:root, html[data-theme="light"] {
+  --primary: #E2694A;
+  --secondary: #B94E36;
+  --accent: #FFA07C;
+  --primary-fg: #FFFFFF;
+
+  --header-color: #FFFFFF;
+  --header-bg: #B94E36;
+  --header-branding-color: #FFFFFF;
+  --header-link-color: #FFFFFF;
+
+  --breadcrumbs-fg: #FFF7F2;
+  --breadcrumbs-link-fg: #FFF7F2;
+  --breadcrumbs-bg: #B94E36;
+
+  --link-fg: #B94E36;
+  --link-hover-color: #E2694A;
+  --link-selected-fg: #E2694A;
+
+  --body-fg: #3F2E2A;
+  --body-bg: #FFF7F2;
+  --body-quiet-color: #9C837B;
+  --body-loud-color: #3F2E2A;
+
+  --darkened-bg: #FFEDE4;
+  --selected-bg: #FFEDE4;
+  --selected-row: #FFDCCB;
+  --border-color: #F6DED2;
+  --hairline-color: #F6DED2;
+
+  --button-bg: #E2694A;
+  --button-fg: #FFFFFF;
+  --button-hover-bg: #B94E36;
+  --default-button-bg: #B94E36;
+  --default-button-hover-bg: #E2694A;
+  --close-button-bg: #9C837B;
+  --close-button-hover-bg: #5C4640;
+  --delete-button-bg: #B94E36;
+  --delete-button-hover-bg: #8F3A28;
+
+  --object-tools-bg: #B94E36;
+  --object-tools-hover-bg: #E2694A;
+
+  --message-success-bg: #E4F3EB;
+  --message-warning-bg: #FFF2DA;
+  --message-error-bg: #FDECEC;
+
+  --font-family-primary: "Nunito", ui-sans-serif, system-ui, sans-serif;
+}
+
+body, #container { font-family: var(--font-family-primary); }
+
+#header {
+  background: linear-gradient(135deg, #E2694A 0%, #B94E36 100%);
+  border-bottom: none;
+}
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+div.breadcrumbs { background: #B94E36; border-bottom: 1px solid #8F3A28; }
+
+.module h2, .module caption, .inline-group h2 {
+  background: linear-gradient(135deg, #FFA07C 0%, #E2694A 100%);
+  color: #FFFFFF;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-weight: 600;
+}
+
+.module, .inline-group, #content-related .module {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #F6DED2;
+  box-shadow: 0 2px 8px rgba(226, 105, 74, .07);
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  border-radius: 999px;
+  font-weight: 600;
+}
+.object-tools a { border-radius: 999px; }
+
+#changelist-filter { background: #FFEDE4; }
+#changelist-filter h2 { background: #B94E36; }
+
+tr:nth-child(odd) > td, tr:nth-child(odd) > th { background: #FFFDFC; }
+thead th { background: #FFEDE4; color: #5C4640; }
+
+.selector-chosen h2 { background: #E2694A; }
+.paginator a:link, .paginator a:visited { background: #E2694A; border-radius: 999px; }

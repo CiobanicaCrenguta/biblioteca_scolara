@@ -1,0 +1,7 @@
+Django==5.2.17
+
+# Recomandări. Opțional: fără scikit-learn, motorul comută automat pe
+# implementarea proprie de TF-IDF din apps/recommendations/engine.py.
+scikit-learn==1.8.0
+
+# psycopg[binary]==3.2.3   # decomentează pentru PostgreSQL

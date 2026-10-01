@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Șterge istoricul{% endblock %}
+{% block content %}
+<div class="panel form-card panel-warn">
+  <h1>Ștergi istoricul?</h1>
+  <p>Se șterg definitiv:</p>
+  <ul>
+    <li>{{ stats.total }} intrări din raft</li>
+    <li>pozițiile salvate în cărțile deschise</li>
+    <li>evenimentele folosite pentru recomandări</li>
+  </ul>
+  <p class="muted">Contul rămâne activ. Recomandările repornesc de la temele bifate în profil.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn" type="submit">Da, șterge istoricul</button>
+    <a class="btn btn-ghost" href="{% url 'accounts:profile' %}">Renunță</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} · Biblioteca școlară{% endblock %}
+{% block content %}
+
+<div class="detail">
+  <div class="cover cover-{{ book.cover_theme }}">
+    {% if book.cover_url %}<img src="{{ book.cover_url }}" alt="Coperta {{ book.title }}">{% else %}{{ book.title }}{% endif %}
+  </div>
+
+  <div>
+    <h1>{{ book.title }}</h1>
+    <p class="muted">
+      {{ book.author_names|default:"autor necunoscut" }}
+      {% if book.first_publish_year %} · {{ book.first_publish_year }}{% endif %}
+      {% if not book.is_published %} · <strong>{{ book.get_status_display }}</strong>{% endif %}
+    </p>
+
+    <div class="tag-row" style="margin: .6rem 0 1rem">
+      {% for subject in book.subjects.all %}<span class="tag">{{ subject.name }}</span>{% endfor %}
+      {% if book.recommended_age %}<span class="tag tag-mint">{{ book.get_recommended_age_display }}</span>{% endif %}
+      {% if book.featured %}<span class="tag tag-butter">Selecția bibliotecarului</span>{% endif %}
+    </div>
+
+    <p>{{ book.description|default:"Fără descriere deocamdată." }}</p>
+
+    {% if can_read %}
+      <p style="margin-top: 1.2rem">
+        <a class="btn" href="{% url 'reader:read' book.slug %}">Citește online</a>
+      </p>
+    {% else %}
+      <p class="muted">Cartea nu are încă un text disponibil online.</p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      <div class="panel" style="margin-top: 1.4rem">
+        <h3>Raftul tău</h3>
+        <form class="shelf-form" method="post" action="{% url 'reader:set_state' book.slug %}">
+          {% csrf_token %}
+          <select name="status">
+            {% for value, label in shelf_choices %}
+              <option value="{{ value }}" {% if state.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-soft" type="submit">Salvează</button>
+          {% if state %}<span class="muted">acum: {{ state.get_status_display }}</span>{% endif %}
+        </form>
+
+        <form class="shelf-form" method="post" action="{% url 'reader:set_reaction' book.slug %}" style="margin-top: .7rem">
+          {% csrf_token %}
+          <button class="btn btn-sm {% if state.reaction == 'LIKE' %}{% else %}btn-ghost{% endif %}" name="reaction" value="LIKE">Mi-a plăcut</button>
+          <button class="btn btn-sm {% if state.reaction == 'DISLIKE' %}{% else %}btn-ghost{% endif %}" name="reaction" value="DISLIKE">Nu mi-a plăcut</button>
+          <span class="muted">Reacțiile îmbunătățesc recomandările.</span>
+        </form>
+      </div>
+    {% endif %}
+
+    {% if user.is_authenticated and user.is_librarian %}
+      <div class="panel panel-warn">
+        <h3>Panoul bibliotecarului</h3>
+        {% if problems %}
+          <p class="muted">Nu poate fi publicată încă:</p>
+          <ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul>
+        {% else %}
+          <p class="muted">Toate condițiile de publicare sunt îndeplinite.</p>
+        {% endif %}
+        <div class="shelf-form">
+          <form method="post" action="{% url 'catalog:publish_book' book.slug %}">
+            {% csrf_token %}<button class="btn btn-sm" type="submit">Publică</button>
+          </form>
+          <form method="post" action="{% url 'catalog:archive_book' book.slug %}">
+            {% csrf_token %}<button class="btn btn-sm btn-ghost" type="submit">Arhivează</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if similar %}
+  <div class="section-head"><h2>Dacă ți-a plăcut asta</h2></div>
+  <div class="grid">
+    {% for pick in similar %}
+      {% include "_card.html" with book=pick.book reason=pick.reason percent=0 %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% endblock %}
