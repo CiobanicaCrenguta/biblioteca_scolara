@@ -322,7 +322,7 @@ Django admin arăta „Published" și atât.
 
 ### Autori și teme
 
-Câmpul rămâne un input obișnuit, cu nume separate prin virgulă, deci formularul
+Câmpul este un input obișnuit, cu nume separate prin virgulă, deci formularul
 funcționează și fără JavaScript. Scriptul îl transformă în etichete și cere
 sugestii de la server. Potrivirea ignoră majusculele, ca „jules verne" să nu
 creeze un al doilea autor lângă „Jules Verne". Numele care nu există se creează
@@ -337,16 +337,4 @@ decide prin rol, iar expunerea lor ar permite escaladarea privilegiilor dintr-un
 formular obișnuit. Bibliotecarul nu își poate schimba propriul rol, nu își poate
 dezactiva contul și nu se poate șterge pe sine.
 
-### Ce nu s-a atins
 
-`services.py` a rămas neatins: publicarea, arhivarea și verificarea drepturilor
-trec prin aceleași funcții ca înainte. Atelierul le apelează, nu le rescrie.
-Modelele au primit doar denumiri românești în `Meta`, ceea ce produce migrări de
-stare, fără modificări în baza de date.
-
-## Ce nu e implementat aici
-
-Importul din Open Library și încărcarea fișierelor prin interfață; bibliotecarul
-atașează deocamdată resurse din Django Admin. Ambele se adaugă peste straturile
-existente. Când apare o regulă nouă de publicare, se scrie o singură linie în
-`services.validate_for_publication()`.
